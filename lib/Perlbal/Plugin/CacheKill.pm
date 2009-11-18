@@ -26,11 +26,9 @@ sub unload {
 }
 
 sub cachekill_config {
-  my $valid_opts = "codes";
-  my $mc = shift->parse(qr/^cache_kill\s*($valid_opts)\s*=\s*(.*)$/,"usage: cache_kill $valid_opts = <404,500,501>");
-  my ($cmd,$result) = $mc->args;
+  my $mc = shift->parse(qr/^cache_kill\s+(?:(\w+)\s+)?(\S+)\s*=\s*(.*)$/,"usage: cache_kill [<service>] codes = <404,500,501>");
+  my ($svcname,$cmd,$result) = $mc->args;
   
-  my $svcname;
   unless ($svcname ||= $mc->{ctx}{last_created}) {
       return $mc->err("No service name in context from CREATE SERVICE <name> or USE <service_name>");
   }
@@ -46,7 +44,7 @@ sub cachekill_config {
   
   Perlbal::log('info','Configured Perlbal::Plugin::CacheKill');
   
-  return 1;
+  return $mc->ok;
 }
 
 # called when we're being added to a service
@@ -100,6 +98,9 @@ Configuration as follows:
   cache_kill codes = <404,500,501,502,503>
     - Define the codes for perlbal to deny caching to. 
 
+=head1 MANAGEMENT COMMANDS
+
+  cache_kill <service name> codes = 500,501,502
 
 =head1 AUTHOR
 
